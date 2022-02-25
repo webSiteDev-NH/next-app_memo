@@ -26,7 +26,8 @@ class MemoController extends Controller
         }
 
         try {
-            $memos = Memo::where('user_id', $id)->get();
+            // 日付の降順
+            $memos = Memo::where('user_id', $id)->latest()->get();
         } catch (Exception $e) {
             throw $e;
         }
@@ -42,6 +43,22 @@ class MemoController extends Controller
      */
     public function create(MemoPostRequest $request): JsonResponse
     {
-        // 処理
+        try {
+            // モデルクラスのインスタンス化
+            $memo = new Memo();
+            // パラメータのセット
+            $memo->user_id = Auth::id();
+            $memo->title = $request->title;
+            $memo->body = $request->body;
+            // モデルの保存
+            $memo->save();
+
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+        return response()->json([
+            'message' => 'メモの登録に成功しました。'
+        ], 201);
     }
 }
