@@ -28,6 +28,7 @@ const Memo: NextPage = () => {
 
   return (
     <div className='w-2/3 mx-auto mt-32'>
+      <h1 className='bg-emerald-200 mb-12 text-center'>{router.query.success}</h1>
       <div className='w-1/2 mx-auto text-center'>
         <button
           className='text-xl mb-12 py-3 px-10 bg-blue-500 text-white rounded-3xl drop-shadow-md hover:bg-blue-400'

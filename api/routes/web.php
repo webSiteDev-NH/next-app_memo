@@ -20,3 +20,5 @@ Route::get('/', function () {
 
 // ログインAPI
 Route::post('/login', [LoginController::class, 'login']);
+// システムエラー確認
+// Route::post('/login', [LoginController::class, 'loginlogin']);
