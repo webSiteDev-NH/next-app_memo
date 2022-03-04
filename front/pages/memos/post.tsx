@@ -1,9 +1,10 @@
 import type { NextPage } from 'next';
 import { RequiredMark } from '../../components/RequiredMark';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useState, useEffect } from 'react';
 import { AxiosError, AxiosResponse } from 'axios';
 import { axiosApi } from '../../lib/axios';
 import { useRouter } from 'next/router';
+import { useUserState } from '../../atoms/userAtom';
 
 // POSTデータの型
 type MemoForm = {
@@ -37,6 +38,19 @@ const Post: NextPage = () => {
 
   // 入力値確認
   console.log(memoForm)
+
+  const { user } = useUserState();
+
+  useEffect(() => {
+    // ログイン中か判定
+    if (!user) {
+      router.push({
+        pathname: '/',
+        query: {alert : 'ログインしてください'}
+      });
+      return;
+    }
+  }, [user, router]);
 
    // メモの登録
    const createMemo = () => {

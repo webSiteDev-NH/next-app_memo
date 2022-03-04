@@ -3,20 +3,34 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { AxiosError, AxiosResponse } from 'axios';
 import { axiosApi } from '../../lib/axios';
+import { useUserState } from '../../atoms/userAtom';
 
 type Memo = {
   title: string;
   body: string;
 };
 
-
 const Memo: NextPage = () => {
   const router = useRouter();
+
+  // useRecoilState の user変数を取得
+  const { user } = useUserState();
+  // ログインユーザー確認
+  console.log(user);
 
   const [memos, setMemos] = useState<Memo[]>([]);
 
   // 初回レンダリング時 → メモ一覧取得
   useEffect(() => {
+    // ログインチェック
+    if (!user) {
+      router.push({
+        pathname: '/',
+        query: {alert : 'ログインしてください'}
+      });
+      return;
+    }
+
     axiosApi
       .get('/api/memos')
       .then((response: AxiosResponse) => {
@@ -24,7 +38,7 @@ const Memo: NextPage = () => {
         setMemos(response.data.data);
       })
       .catch((err: AxiosError) => console.log(err.response));
-  }, []);
+  }, [user, router]);
 
   return (
     <div className='w-2/3 mx-auto mt-32'>

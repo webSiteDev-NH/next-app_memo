@@ -4,6 +4,7 @@ import { axiosApi } from '../lib/axios';
 import { useState, ChangeEvent } from 'react';
 import { AxiosError, AxiosResponse } from 'axios';
 import { useRouter } from 'next/router';
+import { useUserState } from '../atoms/userAtom';
 
 // ログインユーザーの型
 type LoginForm = {
@@ -24,6 +25,9 @@ type Validation = {
 
 const Home: NextPage = () => {
   const router = useRouter();
+
+  // useRecoilState の setUserメソッドを取得
+  const { setUser } = useUserState();
 
   const [loginForm, setLoginForm] = useState<LoginForm>({
     email: '',
@@ -52,6 +56,8 @@ const Home: NextPage = () => {
           .post('/login', loginForm)
           .then((response: AxiosResponse) => {
             console.log(response.data);
+            // ログインユーザーidでstate更新
+            setUser(response.data.data);
             router.push('/memos');
           })
           .catch((err: AxiosError) => {
@@ -88,6 +94,7 @@ const Home: NextPage = () => {
   return (
     <div className='w-2/3 mx-auto py-24'>
       <div className='w-1/2 mx-auto border-2 px-12 py-16 rounded-2xl'>
+        <h1 className='bg-red-600 mb-12 text-center'>{router.query.alert}</h1>
         <h3 className='mb-10 text-2xl text-center'>ログイン</h3>
         <div className='mb-5'>
           <div className='flex justify-start my-2'>
