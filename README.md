@@ -76,3 +76,17 @@ make init
 - 停止: `control + c`
 
 ## 備考
+
+### 目的
+
+Laravel、Next.js 学習
+
+### 学習教材
+
+[TypeScript+Next.js+Laravel で簡易的なメモアプリ開発ハンズオン](https://yutaro-blog.net/2022/02/17/typescript-nextjs-laravel-hands-on/)
+
+### 教材作成者
+
+ゆーたろーさん
+
+https://twitter.com/shimotaroo
