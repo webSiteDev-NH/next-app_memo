@@ -4,7 +4,7 @@ import { ChangeEvent, useState, useEffect } from 'react';
 import { AxiosError, AxiosResponse } from 'axios';
 import { axiosApi } from '../../lib/axios';
 import { useRouter } from 'next/router';
-import { useUserState } from '../../atoms/userAtom';
+import { useAuth } from '../../hooks/useAuth';
 
 // POSTデータの型
 type MemoForm = {
@@ -39,18 +39,23 @@ const Post: NextPage = () => {
   // 入力値確認
   console.log(memoForm)
 
-  const { user } = useUserState();
+  const { checkLoggedIn } = useAuth();
 
+  // useEffect自体をasyncにはできない
   useEffect(() => {
     // ログイン中か判定
-    if (!user) {
-      router.push({
-        pathname: '/',
-        query: {alert : 'ログインしてください'}
-      });
-      return;
-    }
-  }, [user, router]);
+    const init = async () => {
+      // ログイン中か判定
+      const res: boolean = await checkLoggedIn();
+      if (!res) {
+        router.push({
+          pathname: '/',
+          query: {alert : 'ログインしてください'}
+        });
+      }
+    };
+    init();
+  }, []);
 
    // メモの登録
    const createMemo = () => {
