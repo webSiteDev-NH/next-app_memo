@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { AxiosError, AxiosResponse } from 'axios';
 import { axiosApi } from '../../lib/axios';
-import { useUserState } from '../../atoms/userAtom';
+import { useAuth } from '../../hooks/useAuth';
 
 type Memo = {
   title: string;
@@ -13,32 +13,32 @@ type Memo = {
 const Memo: NextPage = () => {
   const router = useRouter();
 
-  // useRecoilState の user変数を取得
-  const { user } = useUserState();
-  // ログインユーザー確認
-  console.log(user);
+  const { checkLoggedIn } = useAuth();
 
   const [memos, setMemos] = useState<Memo[]>([]);
 
   // 初回レンダリング時 → メモ一覧取得
   useEffect(() => {
-    // ログインチェック
-    if (!user) {
-      router.push({
-        pathname: '/',
-        query: {alert : 'ログインしてください'}
-      });
-      return;
-    }
-
-    axiosApi
+    // ログイン中か判定
+    const init = async () => {
+      // ログイン中か判定
+      const res: boolean = await checkLoggedIn();
+      if (!res) {
+        router.push({
+          pathname: '/',
+          query: {alert : 'ログインしてください'}
+        });
+      }
+      axiosApi
       .get('/api/memos')
       .then((response: AxiosResponse) => {
         console.log(response.data)
         setMemos(response.data.data);
       })
       .catch((err: AxiosError) => console.log(err.response));
-  }, [user, router]);
+    };
+    init();
+  }, []);
 
   return (
     <div className='w-2/3 mx-auto mt-32'>
