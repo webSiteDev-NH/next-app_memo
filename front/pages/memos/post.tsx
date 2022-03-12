@@ -1,10 +1,12 @@
 import type { NextPage } from 'next';
 import { RequiredMark } from '../../components/RequiredMark';
-import { ChangeEvent, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AxiosError, AxiosResponse } from 'axios';
 import { axiosApi } from '../../lib/axios';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../hooks/useAuth';
+import { useForm } from 'react-hook-form';
+import { ErrorMessage } from '@hookform/error-message';
 
 // POSTデータの型
 type MemoForm = {
@@ -21,23 +23,15 @@ type Validation = {
 const Post: NextPage = () => {
   const router = useRouter();
 
-  const [memoForm, setMemoForm] = useState<MemoForm>({
-    title: '',
-    body: '',
-  });
+  const {
+    register,              // 入力データ保持
+    handleSubmit,          // 送信メソッド
+    formState: { errors }, // errorオブジェクト
+  } = useForm<MemoForm>(); // 入力値の型
+
+  console.log(errors);
 
   const [validation, setValidation] = useState<Validation>({});
-
-  // POSTデータの更新
-  // Formのタグの型をChangeEventに設定
-  const updateMemoForm = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setMemoForm({ ...memoForm, [e.target.name]: e.target.value });
-  };
-
-  // 入力値確認
-  console.log(memoForm)
 
   const { checkLoggedIn } = useAuth();
 
@@ -58,7 +52,7 @@ const Post: NextPage = () => {
   }, []);
 
    // メモの登録
-   const createMemo = () => {
+   const createMemo = (data: MemoForm) => {
      // バリデーションメッセージの初期化
     setValidation({});
 
@@ -68,7 +62,7 @@ const Post: NextPage = () => {
       .then((res) => {
         // APIへのリクエスト
         axiosApi
-          .post('/api/memos', memoForm)
+        .post('/api/memos', data)
           .then((response: AxiosResponse) => {
             console.log(response.data);
             // 登録成功時：メモ一覧遷移
@@ -111,9 +105,14 @@ const Post: NextPage = () => {
           </div>
           <input
             className='p-2 border rounded-md w-full outline-none'
-            name='title'
-            value={memoForm.title}
-            onChange={updateMemoForm}
+            {...register('title', { required: '必須入力です。' })}
+          />
+          <ErrorMessage
+            errors={errors}
+            name={'title'}
+            render={({ message }) => (
+              <p className='py-3 text-red-500'>{message}</p>
+            )}
           />
           {validation.title && (
             <p className='py-3 text-red-500'>{validation.title}</p>
@@ -126,11 +125,16 @@ const Post: NextPage = () => {
           </div>
           <textarea
             className='p-2 border rounded-md w-full outline-none'
-            name='body'
-            value={memoForm.body}
-            onChange={updateMemoForm}
             cols={30}
             rows={4}
+            {...register('body', { required: '必須入力です。' })}
+          />
+          <ErrorMessage
+            errors={errors}
+            name={'body'}
+            render={({ message }) => (
+              <p className='py-3 text-red-500'>{message}</p>
+            )}
           />
           {validation.body && (
             <p className='py-3 text-red-500'>{validation.body}</p>
@@ -139,7 +143,7 @@ const Post: NextPage = () => {
         <div className='text-center'>
           <button
             className='bg-gray-700 text-gray-50 py-3 sm:px-20 px-10 mt-8 rounded-xl cursor-pointer drop-shadow-md hover:bg-gray-600'
-            onClick={createMemo}
+            onClick={handleSubmit(createMemo)}
           >
             登録する
           </button>
