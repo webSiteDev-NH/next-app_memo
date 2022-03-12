@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { AxiosError, AxiosResponse } from 'axios';
 import { axiosApi } from '../../lib/axios';
 import { useAuth } from '../../hooks/useAuth';
+import { Loading } from '../../components/Loading';
 
 type Memo = {
   title: string;
@@ -16,6 +17,8 @@ const Memo: NextPage = () => {
   const { checkLoggedIn } = useAuth();
 
   const [memos, setMemos] = useState<Memo[]>([]);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   // 初回レンダリング時 → メモ一覧取得
   useEffect(() => {
@@ -35,10 +38,14 @@ const Memo: NextPage = () => {
         console.log(response.data)
         setMemos(response.data.data);
       })
-      .catch((err: AxiosError) => console.log(err.response));
+      .catch((err: AxiosError) => console.log(err.response))
+      .finally(() => setIsLoading(false));
     };
     init();
   }, []);
+
+  // trueの間はLoading画面を表示
+  if (isLoading) return <Loading />
 
   return (
     <div className='w-2/3 mx-auto mt-32'>
